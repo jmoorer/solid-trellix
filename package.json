@@ -1,0 +1,29 @@
+{
+  "name": "example-basic",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "version": "vinxi version"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "@solidjs/meta": "^0.29.2",
+    "@solidjs/router": "^0.12.5",
+    "@solidjs/start": "^0.6.1",
+    "@tailwindcss/forms": "^0.5.6",
+    "solid-js": "^1.8.15",
+    "vinxi": "^0.3.9",
+    "vite-svg-loader": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "prisma": "^5.10.2",
+    "tailwindcss": "^3.4.1"
+  }
+}
