@@ -7,9 +7,7 @@ type User = {
 };
 export function getSession() {
   return useSession<User>({
-    password:
-      process.env.SESSION_SECRET ??
-      "zb9c0/GcaU8EewcGj4IIp09iHjfpGiFyS325m2PPLyEBL6V0FJLTlZfioeNndUfa",
+    password: process.env.SESSION_SECRET!,
   });
 }
 
