@@ -8,28 +8,12 @@ import {
   createAsync,
   redirect,
 } from "@solidjs/router";
-import { FileRoutes } from "@solidjs/start";
+
 import { Component, Show, Suspense } from "solid-js";
 import "./app.css";
 import { LoginIcon, LogoutIcon } from "./icons/icon";
-import { getRequestEvent } from "solid-js/web";
-import { getUserId, logout } from "./api/session";
-
-const authCheck = cache(async () => {
-  "use server";
-  let auth = await getUserId();
-  const request = getRequestEvent()?.request;
-  if (auth && request && new URL(request.url).pathname === "/") {
-    throw redirect("/home");
-  }
-  return auth;
-}, "auth");
-
-const logoutAction = action(async (formData: FormData) => {
-  "use server";
-  await logout();
-  return redirect("/");
-}, "signup");
+import { authCheck, logoutAction } from "./api/auth";
+import { FileRoutes } from "@solidjs/start/router";
 
 export default function App() {
   return (
@@ -40,7 +24,7 @@ export default function App() {
 }
 
 const Layout: Component<RouteSectionProps> = (props) => {
-  const userId = createAsync(() => authCheck(), { deferStream: false });
+  const userId = createAsync(() => authCheck(), { deferStream: true });
   return (
     <MetaProvider>
       <Title>SolidStart - Basic</Title>

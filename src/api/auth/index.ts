@@ -1,6 +1,23 @@
-import { action, json, redirect } from "@solidjs/router";
+import { action, cache, json, redirect } from "@solidjs/router";
 import { createAccount, login, validateLogin, validateSignin } from "./auth";
-import { setAuth } from "../session";
+import { getUserId, logout, setAuth } from "../session";
+import { getRequestEvent } from "solid-js/web";
+
+export const authCheck = cache(async () => {
+  "use server";
+  let auth = await getUserId();
+  const request = getRequestEvent()?.request;
+  if (auth && request && new URL(request.url).pathname === "/") {
+    throw redirect("/home");
+  }
+  return auth;
+}, "auth");
+
+export const logoutAction = action(async (formData: FormData) => {
+  "use server";
+  await logout();
+  return redirect("/");
+}, "signup");
 
 export const loginAction = action(async (formData: FormData) => {
   "use server";

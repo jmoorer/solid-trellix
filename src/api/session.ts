@@ -1,13 +1,15 @@
-"use server";
 import { redirect } from "@solidjs/router";
 import { useSession } from "vinxi/http";
 
 type User = {
   uid?: string;
 };
+
 export function getSession() {
   return useSession<User>({
-    password: process.env.SESSION_SECRET!,
+    password:
+      process.env.SESSION_SECRET ??
+      "gHMIqojv9UlI83U8abMUQAxncka20pxQWOVL0JfaI0osrdoLEb3M9WGcFmHAG6yS",
   });
 }
 
