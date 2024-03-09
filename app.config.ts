@@ -3,7 +3,7 @@ import svgLoader from "vite-svg-loader";
 
 export default defineConfig({
   server: {
-    preset: "vercel",
+    preset: "node",
   },
   vite: {
     plugins: [
