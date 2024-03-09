@@ -1,35 +1,8 @@
-import { A, action, json, redirect, useSubmission } from "@solidjs/router";
+import { A, useSubmission } from "@solidjs/router";
 import { Component } from "solid-js";
-import { login } from "~/api/auth";
-import { setAuth } from "~/api/session";
-import { validateLogin } from "~/api/validate";
+import { loginAction } from "~/api/auth";
 import { Button } from "~/components/button";
 import { Input, Label } from "~/components/input";
-
-const loginAction = action(async (formData: FormData) => {
-  "use server";
-  let email = String(formData.get("email") || "");
-  let password = String(formData.get("password") || "");
-
-  let errors = validateLogin(email, password);
-  if (errors) {
-    return json({ ok: false, errors }, { status: 400 });
-  }
-
-  let userId = await login(email, password);
-  if (userId === false) {
-    return json(
-      {
-        ok: false,
-        errors: { email: undefined, password: "Invalid credentials" },
-      },
-      { status: 400 }
-    );
-  }
-
-  await setAuth(userId);
-  return redirect("/home");
-}, "login");
 
 const LoginPage: Component<{}> = (props) => {
   const submission = useSubmission(loginAction);

@@ -1,31 +1,14 @@
 import { A, action, json, redirect, useSubmission } from "@solidjs/router";
 import { Component, createEffect } from "solid-js";
-import { createAccount, validateSignin } from "~/api/auth";
+import { signupAction } from "~/api/auth";
+import { createAccount, validateSignin } from "~/api/auth/auth";
 import { setAuth } from "~/api/session";
 import { Button } from "~/components/button";
 import { Input, Label } from "~/components/input";
 
-const signupAction = action(async (formData: FormData) => {
-  "use server";
-  let email = String(formData.get("email") || "");
-  let password = String(formData.get("password") || "");
-
-  let errors = await validateSignin(email, password);
-  if (errors) {
-    console.log(errors);
-    return json({ ok: false, errors }, { status: 400 });
-  }
-
-  let user = await createAccount(email, password);
-  await setAuth(user.id);
-  return redirect("/home");
-}, "signup");
-
 const Signup: Component<{}> = (props) => {
   const submission = useSubmission(signupAction);
-  createEffect(() => {
-    console.log(submission.result);
-  });
+
   return (
     <div class="flex min-h-full flex-1 flex-col mt-20 sm:px-6 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-md">

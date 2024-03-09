@@ -1,6 +1,8 @@
 "use server";
+import { action, json, redirect } from "@solidjs/router";
 import crypto from "crypto";
 import { prisma } from "~/db/prisma";
+import { setAuth } from "../session";
 
 export async function login(email: string, password: string) {
   try {

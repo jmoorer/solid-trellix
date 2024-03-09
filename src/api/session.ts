@@ -20,7 +20,7 @@ export async function getUserId() {
   return userId;
 }
 
-export async function requireUserId() {
+export async function requireAuth() {
   let userId = await getUserId();
   if (!userId) {
     await logout();

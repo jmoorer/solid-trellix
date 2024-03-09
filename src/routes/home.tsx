@@ -1,38 +1,21 @@
 import {
   A,
-  action,
-  cache,
+  RouteDefinition,
   createAsync,
-  redirect,
-  revalidate,
+  createAsyncStore,
   useSubmission,
 } from "@solidjs/router";
 import { Component, For, Show } from "solid-js";
-import { createBoard, getHomeData } from "~/api/board-list";
-import { getUserId, requireUserId } from "~/api/session";
+import { createBoardAction, deleteBoardAction, getBoards } from "~/api/board";
 import { Button } from "~/components/button";
 import { Label, LabeledInput } from "~/components/input";
-import { badRequest } from "~/http/bad-request";
 import { Icon } from "~/icons/icon";
 
-const getBoards = cache(async () => {
-  "use server";
-  let userId = await requireUserId();
-  let boards = await getHomeData(userId);
-  return boards;
-}, "boards");
-const deleteBoard = action(async () => {}, "deleteBoard");
-
-const createBoardAction = action(async (formData: FormData) => {
-  "use server";
-  let accountId = await requireUserId();
-  let name = String(formData.get("name") || "");
-  let color = String(formData.get("color") || "");
-  if (!name) throw badRequest("Bad request");
-  let board = await createBoard(accountId, name, color);
-  revalidate(getBoards.key);
-  return redirect(`/board/${board.id}`);
-}, "createBoard");
+export const route = {
+  load({ params }) {
+    getBoards();
+  },
+} satisfies RouteDefinition;
 
 const Home: Component<{}> = (props) => {
   return (
@@ -44,12 +27,12 @@ const Home: Component<{}> = (props) => {
 };
 
 function Boards() {
-  let boards = createAsync(() => getBoards(), { deferStream: true });
+  let boards = createAsyncStore(() => getBoards(), { deferStream: true });
   return (
     <div class="p-8">
       <h2 class="font-bold mb-2 text-xl">Boards</h2>
       <nav class="flex flex-wrap gap-8">
-        <For each={boards() ?? []}>
+        <For each={boards()}>
           {(board) => (
             <Board name={board.name} id={board.id} color={board.color} />
           )}
@@ -68,30 +51,33 @@ function Board({
   id: number;
   color: string;
 }) {
-  // let fetcher = useFetcher();
-  const submission = useSubmission(deleteBoard);
-  let isDeleting = submission.pending;
-  return isDeleting ? null : (
-    <A
-      href={`/board/${id}`}
-      class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
-      style={{ "border-color": color }}
-    >
-      <div class="font-bold">{name}</div>
-      <form method="post">
-        <input type="hidden" name="boardId" value={id} />
-        <button
-          aria-label="Delete board"
-          class="absolute top-4 right-4 hover:text-brand-red"
-          type="submit"
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
+  const submission = useSubmission(deleteBoardAction, ([_id]) => _id === id);
+  let isDeleting = () => submission.pending || submission.result;
+  return (
+    <Show when={!isDeleting()}>
+      <div class="relative">
+        <a
+          href={`/board/${id}`}
+          class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white "
+          style={{ "border-color": color }}
         >
-          <Icon name="trash" />
-        </button>
-      </form>
-    </A>
+          <div class="font-bold">{name}</div>
+        </a>
+        <form action={deleteBoardAction.with(id)} method="post">
+          <button
+            aria-label="Delete board"
+            class="absolute top-4 right-4 hover:text-brand-red"
+            type="submit"
+            onClick={(event) => {
+              event.stopPropagation();
+              return false;
+            }}
+          >
+            <Icon name="trash" />
+          </button>
+        </form>
+      </div>
+    </Show>
   );
 }
 

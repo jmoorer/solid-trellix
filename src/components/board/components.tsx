@@ -1,5 +1,30 @@
-import { Component, ParentComponent, Show, createSignal } from "solid-js";
-import { useSubmission, Action } from "@solidjs/router";
+import { Action, useSubmission } from "@solidjs/router";
+import { Component, JSX, ParentComponent, Show, createSignal } from "solid-js";
+
+export const SaveButton: Component<
+  JSX.ButtonHTMLAttributes<HTMLButtonElement>
+> = (props) => {
+  return (
+    <button
+      tabIndex={0}
+      {...props}
+      class="text-sm rounded-lg text-left p-2 font-medium text-white bg-brand-blue"
+    />
+  );
+};
+
+export const CancelButton: Component<
+  JSX.ButtonHTMLAttributes<HTMLButtonElement>
+> = (props) => {
+  return (
+    <button
+      type="button"
+      tabIndex={0}
+      {...props}
+      class="text-sm rounded-lg text-left p-2 font-medium hover:bg-slate-200 focus:bg-slate-200"
+    />
+  );
+};
 
 export const EditableText: ParentComponent<{
   fieldName: string;
@@ -8,11 +33,10 @@ export const EditableText: ParentComponent<{
   inputLabel: string;
   buttonClassName: string;
   buttonLabel: string;
-  action: Action<[id: string, form: FormData], void>;
-  id: string;
+  action: Action<[form: FormData], void>;
 }> = (props) => {
   // let fetcher = useFetcher();
-  const submission = useSubmission(props.action, ([_id]) => _id === props.id);
+  const submission = useSubmission(props.action);
   let [edit, setEdit] = createSignal(false);
   let inputRef: HTMLInputElement | undefined;
   let buttonRef: HTMLButtonElement | undefined;
@@ -20,7 +44,7 @@ export const EditableText: ParentComponent<{
   // optimistic update
   const currentValue = () => {
     if (submission.input) {
-      const [_, form] = submission.input;
+      const [form] = submission.input;
       if (form.has("name")) {
         return String(form.get("name"));
       }
@@ -49,7 +73,7 @@ export const EditableText: ParentComponent<{
       }
     >
       <form
-        action={props.action.with(props.id)}
+        action={props.action}
         method="post"
         onSubmit={() => {
           setTimeout(() => {
@@ -58,6 +82,7 @@ export const EditableText: ParentComponent<{
           });
         }}
       >
+        {props.children}
         <input
           required
           ref={inputRef}
