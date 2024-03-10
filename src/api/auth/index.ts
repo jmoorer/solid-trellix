@@ -5,6 +5,8 @@ import { getRequestEvent } from "solid-js/web";
 
 export const authCheck = cache(async () => {
   "use server";
+  console.log({ env: process.env });
+
   let auth = await getUserId();
   const request = getRequestEvent()?.request;
   if (auth && request && new URL(request.url).pathname === "/") {
