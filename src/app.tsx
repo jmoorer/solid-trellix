@@ -43,7 +43,7 @@ const Layout: Component<RouteSectionProps> = (props) => {
                   label="Videos"
                 />
                 <IconLink
-                  href="https://github.com/remix-run/example-trellix"
+                  href="https://github.com/jmoorer/solid-trellix"
                   label="Source"
                   icon="/images/github-mark-white.png"
                 />
