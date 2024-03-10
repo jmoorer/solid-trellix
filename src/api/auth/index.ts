@@ -5,8 +5,6 @@ import { getRequestEvent } from "solid-js/web";
 
 export const authCheck = cache(async () => {
   "use server";
-  console.log({ env: process.env });
-
   let auth = await getUserId();
   const request = getRequestEvent()?.request;
   if (auth && request && new URL(request.url).pathname === "/") {
@@ -41,13 +39,17 @@ export const loginAction = action(async (formData: FormData) => {
       { status: 400 }
     );
   }
-
-  await setAuth(userId);
-  return redirect("/home");
+  try {
+    await setAuth(userId);
+    return redirect("/home");
+  } catch (err) {
+    console.log(err);
+  }
 }, "login");
 
 export const signupAction = action(async (formData: FormData) => {
   "use server";
+
   let email = String(formData.get("email") || "");
   let password = String(formData.get("password") || "");
 
@@ -56,8 +58,12 @@ export const signupAction = action(async (formData: FormData) => {
     console.log(errors);
     return json({ ok: false, errors }, { status: 400 });
   }
-
-  let user = await createAccount(email, password);
-  await setAuth(user.id);
-  return redirect("/home");
+  try {
+    let user = await createAccount(email, password);
+    await setAuth(user.id);
+    return redirect("/home");
+  } catch (error) {
+    console.log("Failed to sign up", { email, password });
+    console.error(error);
+  }
 }, "signup");
