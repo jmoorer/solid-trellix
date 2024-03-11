@@ -1,4 +1,4 @@
-import { useSubmission } from "@solidjs/router";
+import { useAction, useParams, useSubmission } from "@solidjs/router";
 import { Show, createSignal } from "solid-js";
 import invariant from "tiny-invariant";
 import { deleteCardAction, deleteItemAction } from "~/api/board";
@@ -6,6 +6,7 @@ import { deleteCardAction, deleteItemAction } from "~/api/board";
 import { Icon } from "~/icons/icon";
 import { CONTENT_TYPES, ItemMutation, INTENTS } from "~/types";
 import { deleteItem } from "../../api/board/board";
+import { moveItemAction } from "../../api/board/index";
 
 interface CardProps {
   title: string;
@@ -26,6 +27,9 @@ export function Card({
   nextOrder,
   previousOrder,
 }: CardProps) {
+  const params = useParams();
+  const boardId = () => Number(params.id);
+  const moveItem = useAction(moveItemAction);
   const deleteSubmission = useSubmission(
     deleteItemAction,
     ([_id]) => _id === id
@@ -70,7 +74,7 @@ export function Card({
             id: transfer.id,
             title: transfer.title,
           };
-
+          moveItem(boardId(), mutation);
           //   submit(
           //     { ...mutation, intent: INTENTS.moveItem },
           //     {
@@ -91,7 +95,7 @@ export function Card({
         }}
       >
         <div
-          draggable
+          draggable="true"
           class="bg-white shadow shadow-slate-300 border-slate-300 text-sm rounded-lg w-full py-1 px-2 relative"
           onDragStart={(event) => {
             invariant(event.dataTransfer);

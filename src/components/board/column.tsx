@@ -8,8 +8,12 @@ import { Card } from "./card";
 import { EditableText } from "./components";
 import { RenderedItem, CONTENT_TYPES, ItemMutation, INTENTS } from "~/types";
 import { For, Index, Show, createSignal } from "solid-js";
-import { deleteItemAction, updateColumnAction } from "~/api/board";
-import { useSubmissions } from "@solidjs/router";
+import {
+  deleteItemAction,
+  moveItemAction,
+  updateColumnAction,
+} from "~/api/board";
+import { useSubmissions, useParams, useAction } from "@solidjs/router";
 
 interface ColumnProps {
   name: string;
@@ -27,14 +31,19 @@ export function Column(props: ColumnProps) {
     listRef.scrollTop = listRef.scrollHeight;
   }
   const sortedItems = () => props.items.sort((a, b) => a.order - b.order);
-  const deletetingItem = useSubmissions(deleteItemAction);
+
+  const params = useParams();
+  const boardId = () => Number(params.id);
+  const moveItem = useAction(moveItemAction);
 
   return (
     <div
       class={
-        "flex-shrink-0 flex flex-col overflow-hidden max-h-full w-80 border-slate-400 rounded-xl shadow-sm shadow-slate-400 bg-slate-100 " +
-        (acceptDrop() ? `outline outline-2 outline-brand-red` : ``)
+        "flex-shrink-0 flex flex-col overflow-hidden max-h-full w-80 border-slate-400 rounded-xl shadow-sm shadow-slate-400 bg-slate-100 "
       }
+      classList={{
+        "outline outline-2 outline-brand-red": acceptDrop(),
+      }}
       onDragOver={(event) => {
         if (
           props.items.length === 0 &&
@@ -61,17 +70,7 @@ export function Column(props: ColumnProps) {
           id: transfer.id,
           title: transfer.title,
         };
-
-        // submit(
-        //   { ...mutation, intent: INTENTS.moveItem },
-        //   {
-        //     method: "post",
-        //     navigate: false,
-        //     // use the same fetcher instance for any mutations on this card so
-        //     // that interruptions cancel the earlier request and revalidation
-        //     fetcherKey: `card:${transfer.id}`,
-        //   }
-        // );
+        moveItem(boardId(), mutation);
 
         setAcceptDrop(false);
       }}

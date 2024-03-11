@@ -122,10 +122,10 @@ export const createItemAction = action(
   }
 );
 export const moveItemAction = action(
-  async (boardId: number, formData: FormData) => {
+  async (boardId: number, mutation: ItemMutation) => {
     "use server";
     let accountId = await requireAuth();
-    let mutation = parseItemMutation(formData);
+
     await upsertItem({ ...mutation, boardId }, accountId);
   }
 );

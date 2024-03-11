@@ -11,6 +11,7 @@ import {
   createColumnAction,
   createItemAction,
   getBoard,
+  moveItemAction,
   updateBoardNameAction,
 } from "~/api/board";
 import { EditableText } from "~/components/board/components";
@@ -134,15 +135,20 @@ function usePendingColumns() {
 
 function usePendingItems() {
   const pendingCreate = useSubmissions(createItemAction);
-  const pendingMove = useSubmissions(createItemAction);
-  return () =>
-    [...pendingCreate].map(({ input: [, formData] }) => {
+  const pendingMove = useSubmissions(moveItemAction);
+  return () => [
+    ...Array.from(pendingCreate).map(({ input: [, formData] }) => {
       let columnId = String(formData.get("columnId"));
       let title = String(formData.get("title"));
       let id = String(formData.get("id"));
       let order = Number(formData.get("order"));
       let item: RenderedItem = { title, id, order, columnId, content: null };
       return item;
-    });
+    }),
+    ...Array.from(pendingMove).map<RenderedItem>(({ input: [, data] }) => ({
+      ...data,
+      content: null,
+    })),
+  ];
 }
 export default Board;
